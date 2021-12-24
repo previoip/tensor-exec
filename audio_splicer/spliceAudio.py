@@ -5,6 +5,9 @@ from inspect import getsourcefile
 # import tensorflow_datasets as tfds
 cwd = os.path.abspath(getsourcefile(lambda:0) + '/..')
 
+OUTPUT = False
+SHOWPLOT = True
+
 def write_on_new_file(path):
     filename, extension = os.path.splitext(path)
     counter = 1
@@ -47,6 +50,7 @@ for pa in filePaths.keys():
 
         fhnum = 0
         for p in audioPaths:
+            print(f'processing: {p}')
             audioInput = pydub.AudioSegment.from_file(p, "wav") 
             # audioInput = audioInput.set_frame_rate(audioInput.frame_rate)
             channel_audio = audioInput.split_to_mono()
@@ -80,17 +84,20 @@ for pa in filePaths.keys():
                 except StopIteration:
                     break
 
-            # plt.plot([i for i in range(len(samples))], samples, label='a')
-            # plt.plot([i for i in range(len(samples))], temp, label='b')
-            # plt.show()
+            if SHOWPLOT:
+                plt.figure(figsize=(5,3))
+                plt.plot([i for i in range(len(samples))], samples, label='a')
+                plt.plot([i for i in range(len(samples))], temp, label='b') 
+                plt.show()
 
-            for frame in timeStamps:
-                fhnum += 1
-                start = int(1000*frame/audioInput.frame_rate)-100
-                stop = start + 500
+            if OUTPUT:
+                for frame in timeStamps:
+                    fhnum += 1
+                    start = int(1000*frame/audioInput.frame_rate)-100
+                    stop = start + 500
 
-                au = audioInput[start:stop]
-                
-                with open(f'{cwd}/dataset/{pa}/{cl}/tr_{cl}-{fhnum}.wav','wb') as fh:
-                    au.export(fh, format='wav')
+                    au = audioInput[start:stop]
+                    
+                    with open(f'{cwd}/dataset/{pa}/{cl}/tr_{cl}-{fhnum}.wav','wb') as fh:
+                        au.export(fh, format='wav')
                 
